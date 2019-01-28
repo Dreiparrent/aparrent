@@ -1,0 +1,59 @@
+#overlay-scroller {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    position: absolute;
+    top: 0;
+    left: 0vw;
+    width: 100vw;
+    height: 100vh;
+}
+#overlay-scroller > div {
+    width: 300vw;
+    height: 105vh;
+}
+#underlay-scroller {
+    overflow: hidden;
+    width: 600vw;
+    height: 200vh;
+    margin-left: -250vw;
+    transform-origin: 50% 100%;
+}
+.inner {
+    opacity: 1;
+    // margin-top: 100px;
+    // height: calc(100vh - 100px);
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    // justify-content: center;
+}
+.inner > h2 {
+    position: absolute;
+    top: 30px;
+    left: 50px;
+}
+.page {
+    position: absolute;
+    height: 200vh;
+    width: 105vw;
+    transform-origin: 50% 100%;
+    margin-left: 250vw;
+}
+#design {
+    background-color: #3D6999;
+}
+#home {
+    position: absolute;
+    width: 100vw;
+}
+#photography {
+    background-color: #00000085;
+    // background-color: black;
+    margin-top: -5vh;
+    height: 205vh;
+    margin-left: 245vw;
+}
+#photography > .inner > h2 {
+    top: calc(5vh + 30px);
+}
