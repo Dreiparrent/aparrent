@@ -60,6 +60,21 @@
     position: absolute;
     top: calc(100vh - 150px);
 }
+#text_scroll {
+    width: 100%;
+    text-align: center;
+    top: calc(100vh - 200px);
+    pointer-events: all;
+}
+#text_scroll_arrow1 {
+    left: 15vw;
+    top: calc(100vh - 185px);
+    transform: scale(-1,1);
+}
+#text_scroll_arrow2 {
+    left: 60vw;
+    top: calc(100vh - 200px);
+}
 #text_photo {
     left: 50px;
 }

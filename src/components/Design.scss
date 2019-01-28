@@ -17,6 +17,10 @@
     flex-grow: 2;
     align-content: flex-end;
 }
+#design_content > h4, h3, a {
+    pointer-events: all;
+    color: black;
+}
 .box {
     border: 3px solid #FF6B40;
     width: 25vw;
@@ -31,6 +35,32 @@
     width: 70%;
     height: 70%;
     clip-path: circle(50% at 50% 50%);
+}
+.box > div {
+    position: absolute;
+    opacity: 0;
+    width: 25vw;
+    height: 25vw;
+    transition: opacity 200ms;
+    transition-timing-function: ease-in;
+}
+#box0 > div {
+    background-color: #FF6B40;
+}
+#box1 > div {
+    background-color: #FF815D;
+}
+#box2 > div {
+    background-color: #FF9779;
+}
+#box3 > div {
+    background-color: #FFB5A0;
+}
+#box4 > div {
+    background-color: #FFD3C6;
+}
+#box5 > div {
+    background-color: #FFEDE8;
 }
 .row {
     margin-bottom: -3px;

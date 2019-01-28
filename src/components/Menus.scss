@@ -24,11 +24,15 @@
 }
 #menu_fans > p {
     position: relative;
+    display: none;
     opacity: 0;
     top: 50%;
     left: 20%;
     transition: opacity 500ms;
     transition-timing-function: ease-in-out;
+}
+#menu_fans > p > a {
+    margin-left: 10px;
 }
 #menu_nav {
     background-color: transparent;
@@ -151,4 +155,27 @@
     transform: translate(-50%, 0) rotate(-90deg);
     transform-origin: 50% 100%;
     z-index: -1;
+}
+#menu_wedge {
+    position: absolute;
+    left: 50%;
+    top: 100vh;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border-left: 30vh solid transparent;
+    border-right: 30vh solid transparent;
+    border-top: 60vh solid #146BCC;
+    transition: top 300ms;
+    transition-timing-function: ease-out;
+}
+#menu_wedge > h4 {
+    position: absolute;
+    width: 30vh;
+    top: -50vh;
+    left: 0;
+    transform: translate(-50%);
+    text-align: center;
+    pointer-events: all;
 }

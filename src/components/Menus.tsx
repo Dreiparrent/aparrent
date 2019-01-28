@@ -1,21 +1,24 @@
 import React, { Component } from "react";
 import './Menus.scss';
+import { Pages } from "../App";
 
 export class Menus extends Component<IProps, IState> {
-    public wedgeClip: React.RefObject<HTMLDivElement>;
     public wedgeRef: React.RefObject<HTMLDivElement>;
-
+    
+    private wedgeClip: React.RefObject<HTMLDivElement>;
     private fansMenu: React.RefObject<HTMLDivElement>;
     private navMenu: React.RefObject<HTMLDivElement>;
     private subMenu: React.RefObject<HTMLDivElement>;
     private navMenuInner: React.RefObject<HTMLDivElement>;
     private fansComingSoon: React.RefObject<HTMLDivElement>;
+    private wedgeMenu: React.RefObject<HTMLDivElement>;
     constructor(props: IProps) {
         super(props);
         this.state = {
             navActive: false,
             navSubDesignActive: true,
-            fansActive: false
+            fansActive: false,
+            wedgeActive: false
         } 
         this.wedgeRef = React.createRef();
         this.wedgeClip = React.createRef();
@@ -24,8 +27,11 @@ export class Menus extends Component<IProps, IState> {
         this.navMenu = React.createRef();
         this.navMenuInner = React.createRef();
         this.fansComingSoon = React.createRef();
+        this.wedgeMenu = React.createRef();
         this.wedgeClick = this.wedgeClick.bind(this);
         this.getSubMenu = this.getSubMenu.bind(this);
+        this.raiseWedge = this.raiseWedge.bind(this);
+        this.resetWedge = this.resetWedge.bind(this);
     }
     getSubMenu(props: {active: boolean}) {
         if (this.state.navSubDesignActive) {
@@ -52,7 +58,10 @@ export class Menus extends Component<IProps, IState> {
         return (
             <div id="menu_outer">
                 <div className="menu" id="menu_fans" ref={this.fansMenu} onClick={this.fansClick.bind(this)}>
-                    <p ref={this.fansComingSoon}>coming soon</p>
+                    <p ref={this.fansComingSoon}>(coming soon)
+                    <br/><br/>
+                    <a href="/resume">click for resume</a>
+                    </p>
                 </div>
                 <div id="menu_nav_sub" ref={this.subMenu}>
                     <div id="menu_nav_sub_inner">
@@ -80,8 +89,8 @@ export class Menus extends Component<IProps, IState> {
                         </div>
                     </div>
                 </div>
-                <div className="menu" id="menu_home">
-                    
+                <div id="menu_wedge" ref={this.wedgeMenu}>
+                    <h4>menu coming soon</h4>
                 </div>
             </div>
         )
@@ -91,10 +100,14 @@ export class Menus extends Component<IProps, IState> {
             this.fansMenu.current.style.width = '200px';
             this.fansMenu.current.style.height = '200px';
             this.fansComingSoon.current.style.opacity = '0';
+            setTimeout(() => {
+                this.fansComingSoon.current.style.display = 'none';
+            }, 500);
         } else {
             this.fansMenu.current.style.width = '450px';
             this.fansMenu.current.style.height = '450px';
             this.fansComingSoon.current.style.opacity = '1';
+            this.fansComingSoon.current.style.display = 'block';
         }
         this.setState({fansActive: !this.state.fansActive})
     }
@@ -132,29 +145,50 @@ export class Menus extends Component<IProps, IState> {
         // this.subDesignAcive = false;
         console.log('photo');
     }
-    private wedgeClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>, reset = false) {
-        // e.currentTarget.style.borderTop = '500px solid #146BCC';
-        // e.currentTarget.style.borderRight = '300px solid transparent';
-        // e.currentTarget.style.borderLeft = '300px solid transparent';
-        // e.currentTarget.style.marginBottom = '470px';
-        // this.wedge2.current.style.clipPath = 'polygon(0 0, 100% 200%, 200% 0);'
-        console.log();
+    private wedgeClick() {
+        console.log(this.props.page);
+        
+        if (this.state.wedgeActive) {
+            this.wedgeMenu.current.style.top = '100vh';
+            this.resetWedge();
+        } else {
+            this.wedgeMenu.current.style.top = '10vh';
+            switch (this.props.page) {
+                case (Pages.photography):
+                    this.wedgeMenu.current.style.borderTopColor = '#3D6999'; // TODO: add proper colors to these
+                    break;
+                case Pages.design:
+                    this.wedgeMenu.current.style.borderTopColor = '#FF6B40';
+                    break;
+                default:
+                    this.wedgeMenu.current.style.borderTopColor = '#146BCC';
+                    break;
+            }
+            this.raiseWedge();
+        }
+        this.setState({ wedgeActive: !this.state.wedgeActive });
     }
-    public reset() {
-        console.log('reset');
+    public raiseWedge() {
+        this.wedgeClip.current.style.bottom = '60px';
     }
-    close() {
+    public resetWedge() {
+        this.wedgeClip.current.style.bottom = '25px';
+    }
+    public close() {
         if (this.state.fansActive)
             this.fansClick();
         if (this.state.navActive)
             this.navClick()
+        if (this.state.wedgeActive)
+            this.wedgeClick();
     }
 }
 interface IProps {
-
+    page: Pages
 }
 interface IState {
     navActive: boolean;
     navSubDesignActive: boolean;
     fansActive: boolean;
+    wedgeActive: boolean;
 }

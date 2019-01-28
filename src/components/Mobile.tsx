@@ -9,7 +9,7 @@ export class Mobile extends Component<IProps, IState> {
 
     public scrollRef: React.RefObject<HTMLDivElement>;
     public underRef: React.RefObject<HTMLDivElement>;
-    public scrollIndex: number;
+    // public scrollIndex: number;
     private scrollTimer: any;
     private canScroll = true;
     private menusRef: React.RefObject<Menus>;
@@ -18,12 +18,13 @@ export class Mobile extends Component<IProps, IState> {
         super(props);
         const angle = this.getAngle();
         this.state = {
-            rotationAngle: angle
+            rotationAngle: angle,
+            scrollIndex: this.props.page
         }
         this.onResize = this.onResize.bind(this);
         this.scrollRef = React.createRef();
         this.underRef = React.createRef();
-        this.scrollIndex = this.props.page;
+        // this.scrollIndex = this.props.page;
         this.onScroll = this.onScroll.bind(this);
         this.snapScroll = this.snapScroll.bind(this);
         this.menusRef = React.createRef();
@@ -36,8 +37,7 @@ export class Mobile extends Component<IProps, IState> {
         this.scrollRef.current.addEventListener('scroll', this.onScroll);
         this.scrollRef.current.addEventListener('touchstart', () => {
             if (this.menusRef.current && this.menusRef.current.wedgeRef) {
-                this.menusRef.current.wedgeClip.current.style.bottom = `65px`;
-                this.menusRef.current.wedgeClip.current.style.clipPath = `polygon(0 0, 60% 110%, 110% 0);`;
+                this.menusRef.current.raiseWedge()
             }
             clearTimeout(this.scrollTimer);
             this.canScroll = false;
@@ -83,7 +83,7 @@ export class Mobile extends Component<IProps, IState> {
                     </div>
                     <div className="page" id="home" >
                         <div className="inner">
-                            <Home />
+                            <Home snapScroll={this.snapScroll} />
                         </div>
                     </div>
                     <div className="page" id="design"
@@ -94,7 +94,7 @@ export class Mobile extends Component<IProps, IState> {
                         </div>
                     </div>
                 </div>
-                <Menus ref={this.menusRef}></Menus>
+                <Menus page={this.state.scrollIndex} ref={this.menusRef}></Menus>
                 <div id="overlay-scroller" ref={this.scrollRef} onClick={this.onClick.bind(this)}>
                     <div></div> {/* TODO: add clicks here */}
                 </div>
@@ -111,7 +111,7 @@ export class Mobile extends Component<IProps, IState> {
         // console.log('0', window.outerWidth);
         const left = window.outerWidth;
         // setTimeout(() => {
-            switch (this.scrollIndex) {
+            switch (this.state.scrollIndex) {
                 case Pages.photography:
                     this.scrollRef.current.scrollLeft = 0;
                     break;
@@ -140,42 +140,43 @@ export class Mobile extends Component<IProps, IState> {
         clearTimeout(this.scrollTimer);
         if (this.menusRef.current && this.menusRef.current.wedgeRef) {
             this.menusRef.current.wedgeRef.current.style.transform = `translateX(-50%) rotate(${rot2}deg)`;
-            // console.log('rpt');
         }
-        else console.log('else');
         this.scrollTimer = setTimeout(() => {
             this.canScroll = true;
             this.snapScroll();
         }, 150);
-        // if (this.canScroll)
-            // this.snapScroll();
     }
 
     
 
-    snapScroll() {
+    snapScroll = (index?: Pages) => {
         clearTimeout(this.scrollTimer);
-        if (this.canScroll) {
-            const scrollLeft = this.scrollRef.current.scrollLeft;
+        if (this.canScroll || index !== null) {
+            let scrollLeft = this.scrollRef.current.scrollLeft;
+            if (index === Pages.design)
+                scrollLeft = window.innerWidth * 2;
+            else if (index === Pages.photography)
+                scrollLeft = 0;
             if (scrollLeft > window.innerWidth * 1.5) {
                 this.scrollRef.current.scrollTo({ left: window.innerWidth * 2, behavior: 'smooth' });
+                this.setState({ scrollIndex: Pages.design });
                 this.props.route.history.push('/design');
             }
             // this.scrollRef.current.scrollLeft = window.innerWidth * 2;
             else if (scrollLeft > window.innerWidth * 0.5) {
                 this.scrollRef.current.scrollTo({ left: window.innerWidth, behavior: 'smooth' });
+                this.setState({ scrollIndex: Pages.home });
                 this.props.route.history.push('/home');
             }
             // this.scrollRef.current.scrollLeft = window.innerWidth;
             else {
                 this.scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                this.setState({ scrollIndex: Pages.photography });
                 this.props.route.history.push('/photography');
             }
             // this.scrollRef.current.scrollLeft = 0;
             if (this.menusRef.current && this.menusRef.current.wedgeRef) {
-                this.menusRef.current.wedgeClip.current.style.bottom = `25px`;
-                this.menusRef.current.wedgeClip.current.style.clipPath = `polygon(0 0, 50% 100%, 100% 0);`;
-                // TODO: is clip path necessary
+                this.menusRef.current.resetWedge();
             }
         }
         this.menusRef.current.close();
@@ -217,4 +218,5 @@ export class Mobile extends Component<IProps, IState> {
 }
 interface IState {
     rotationAngle: number;
+    scrollIndex: number;
 }
