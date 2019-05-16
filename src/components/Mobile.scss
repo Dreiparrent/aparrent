@@ -1,18 +1,21 @@
+@import '../assets/colors.scss';
 #overlay-scroller {
     overflow-y: scroll;
     overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
     position: absolute;
     top: 0;
     left: 0vw;
     width: 100vw;
     height: 100vh;
-}
-#overlay-scroller > div {
-    width: 300vw;
-    height: 105vh;
+    div {
+        width: 300vw;
+        height: 105vh;
+    }
 }
 #underlay-scroller {
-    overflow: hidden;
+    overflow: show;
+    // overflow: hidden;
     width: 600vw;
     height: 200vh;
     margin-left: -250vw;
@@ -41,7 +44,7 @@
     margin-left: 250vw;
 }
 #design {
-    background-color: #3D6999;
+    @include background(primarydark);
 }
 #home {
     position: absolute;
@@ -49,7 +52,6 @@
 }
 #photography {
     background-color: #0000005e;
-    // background-color: black;
     margin-top: -5vh;
     height: 205vh;
     margin-left: 245vw;

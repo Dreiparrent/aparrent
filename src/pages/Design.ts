@@ -1,12 +1,17 @@
-import { Page, IProps, IdesignElements } from '../pages/Page';
+import { Page, IProps, IdesignElements } from './Page';
 import { CanvasService } from '../services/canvas.service';
 import GSAP, { TweenLite, Power2, Power1 } from 'gsap';
+import { ColorReplaceFilter } from '@pixi/filter-color-replace';
+import { designContents, DContents } from '../classes/design-content';
+import { Styles } from '../components/Canvas';
+import * as PIXI from 'pixi.js';
 
 // export class Design extends Component<{ service: DesignService }, { isInit: boolean, isOpen: boolean }>, Page {
 export class Design extends Page<IdesignElements> {
     private boxHeight = 200;
     private mousePosition: { x: number, y: number };
     private hoverSquare: PIXI.Sprite;
+    private filter = new ColorReplaceFilter(0x00ff00, 0xFF4E2A, 0.2);
     private boxCont = new PIXI.Container;
     private boxArray: PIXI.Container[] = [];
     private media = {
@@ -15,49 +20,18 @@ export class Design extends Page<IdesignElements> {
         md: new PIXI.Container,
         sm: new PIXI.Container
     };
+    private backgrounds: PIXI.Sprite[] = [];
     // private content: PIXI.Container;
     private clickIndex = -1;
-    public textBlocks: IContentText[] = [
-        {
-            h: 'Open Garage',
-            s: 'Open Garage',
-            c: 'Content'
-        },
-        {
-            h: 'Working Mens Institute',
-            s: 'WMI',
-            c: 'Content'
-        },
-        {
-            h: 'Fake',
-            s: 'Fake',
-            c: 'Content'
-        },
-        {
-            h: 'Sourcerer',
-            s: 'Sourcerer',
-            c: 'Content'
-        },
-        {
-            h: 'Savvy Savings',
-            s: 'Savvy Savings',
-            c: 'Content'
-        },
-        {
-            h: 'Coming Soon',
-            s: 'Coming Soon',
-            c: 'Content'
-        }
-    ];
     constructor(props: IProps<IdesignElements>) {
         super(props)
-        console.log('construct');
         const graphics = new PIXI.Graphics;
         graphics.moveTo(0, 0);
         graphics.beginFill(0x3D6999, 1);
         graphics.drawRect(0, 0, this.props.positions.innerWidth, this.props.positions.innerHeight);
         graphics.endFill();
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.props.renderer.generateTexture(graphics, 1, 1);
         this._background = new PIXI.Sprite(texture);
         this._background.anchor.set(1.5, 0.5);
         this._background.rotation = -1;
@@ -66,10 +40,11 @@ export class Design extends Page<IdesignElements> {
 
     init = () => {
         const graphics = new PIXI.Graphics;
-        graphics.lineStyle(5, 0xFF6B40);
+        graphics.lineStyle(5, 0x00FF00);
         graphics.moveTo(0, 0);
         graphics.drawRect(0, 0, this.boxHeight, this.boxHeight);
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.props.renderer.generateTexture(graphics, 1, 1)
 
         // Shadow
         const shadowGraphics = new PIXI.Graphics;
@@ -86,14 +61,24 @@ export class Design extends Page<IdesignElements> {
             rows.push(row);
         }
 
+        // Bg
+        this.backgrounds = [
+            PIXI.Sprite.from(designContents[DContents.Kahani].bg),
+            PIXI.Sprite.from(designContents[DContents.OpenGarage].bg),
+            PIXI.Sprite.from(designContents[DContents.WMI].bg),
+            PIXI.Sprite.from(designContents[DContents.DD].bg),
+            PIXI.Sprite.from(designContents[DContents.SS].bg),
+            PIXI.Sprite.from(designContents[DContents.Sourcerer].bg)
+        ];
+
         // Logos
         const logoSprites: PIXI.Sprite[] = [
-            PIXI.Sprite.fromImage('assets/og-logo.png'),
-            PIXI.Sprite.fromImage('assets/wmi-logo.png'),
-            PIXI.Sprite.fromImage('assets/og-logo.png'),
-            PIXI.Sprite.fromImage('assets/sour-logo.png'),
-            PIXI.Sprite.fromImage('assets/ss-logo.png'),
-            PIXI.Sprite.fromImage('assets/og-logo.png')
+            PIXI.Sprite.from(designContents[DContents.Kahani].img),
+            PIXI.Sprite.from(designContents[DContents.OpenGarage].img),
+            PIXI.Sprite.from(designContents[DContents.WMI].img),
+            PIXI.Sprite.from(designContents[DContents.DD].img),
+            PIXI.Sprite.from(designContents[DContents.SS].img),
+            PIXI.Sprite.from(designContents[DContents.Sourcerer].img)
         ];
         const logoTints = [0xFF6B40, 0xFF815D, 0xFF9779, 0xFFB5A0, 0xFFD3C6, 0xFFEDE8]; // In Order
         // const logoTints = [0xFFEDE8, 0xFFB5A0, 0xFF9779, 0xFFD3C6, 0xFF815D, 0xFF6B40];
@@ -101,7 +86,7 @@ export class Design extends Page<IdesignElements> {
             const box = new PIXI.Container();
             this.boxArray.push(box);
             // Shadow
-            const shadow = CanvasService.createShadow(shadowGraphics);
+            const shadow = CanvasService.createShadow(shadowGraphics, this.props.renderer);
             shadow.position.set(20, 20);
             box.addChild(shadow);
 
@@ -163,8 +148,8 @@ export class Design extends Page<IdesignElements> {
             box.addChild(pullUp);
 
             // Pull Up Text
-            const text = new PIXI.Text(this.textBlocks[i].s);
-            text.anchor.set(0.5, 2);
+            const text = new PIXI.Text(designContents[i].shortName, CanvasService.styles[Styles.design]);
+            text.anchor.set(0.5, 1.5);
             text.position.set(100, 200);
             text.alpha = 0;
             box.addChild(text);
@@ -173,7 +158,7 @@ export class Design extends Page<IdesignElements> {
         this._fg.addChild(this.boxCont);
 
         this._content.alpha = 0;
-        this._fg.addChild(this._content);
+        // this._fg.addChild(this._content);
 
         const contentSize = {
             xl: { x: 600, y: 750 }, lg: { x: 400, y: 640 },
@@ -183,42 +168,66 @@ export class Design extends Page<IdesignElements> {
         /* ** Content xl ** */
         // Content Outline
         const contentxl = new PIXI.Graphics;
-        contentxl.lineStyle(5, 0xFF4E2A);
+        contentxl.lineStyle(5, 0x00FF00);
         contentxl.drawRect(0, 0, contentSize.xl.x, contentSize.xl.y);
-        const spritexl = new PIXI.Sprite(contentxl.generateCanvasTexture());
+        // const spritexl = new PIXI.Sprite(contentxl.generateCanvasTexture());
+        const spritexl = new PIXI.Sprite(this.props.renderer.generateTexture(contentxl, 1, 1));
 
         // Content Shadow
         const shadowGraphicsxl = new PIXI.Graphics;
         shadowGraphicsxl.beginFill(0x000000, 0.7);
         shadowGraphicsxl.drawRect(0, 0, contentSize.xl.x, contentSize.xl.y);
-        const shadowxl = CanvasService.createShadow(shadowGraphicsxl);
+        const shadowxl = CanvasService.createShadow(shadowGraphicsxl, this.props.renderer);
         shadowxl.position.set(20, 20);
 
         // Content Text
-        const textxl = new PIXI.Text('This is the xl text');
+        const textxlName = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textxlName.position.set(10, 5);
+        const textxlSub = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textxlSub.position.set(10, 55);
+        const textxlCode = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textxlCode.position.set(10, 105);
+        const textxlComp = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textxlComp.position.set(10, 155);
+        const textxlLink = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textxlLink.buttonMode = textxlLink.interactive = true;
+        textxlLink.on('click', this.linkClick.bind(this));
+        textxlLink.position.set(10, 205);
         this.media.xl.addChild(shadowxl);
-        this.media.xl.addChild(textxl);
+        this.media.xl.addChild(textxlName, textxlSub, textxlCode, textxlComp, textxlLink);
         this.media.xl.addChild(spritexl);
 
         /* ** Content lg ** */
         // Content Outline
         const contentlg = new PIXI.Graphics;
-        contentlg.lineStyle(4, 0xFF4E2A);
+        contentlg.lineStyle(4, 0x00FF00);
         contentlg.drawRect(0, 0, contentSize.lg.x, contentSize.lg.y);
-        const spritelg = new PIXI.Sprite(contentlg.generateCanvasTexture());
+        // const spritelg = new PIXI.Sprite(contentlg.generateCanvasTexture());
+        const spritelg = new PIXI.Sprite(this.props.renderer.generateTexture(contentlg, 1, 1));
 
         // Content Shadow
         const shadowGraphicslg = new PIXI.Graphics;
         shadowGraphicslg.beginFill(0x000000, 0.7);
         shadowGraphicslg.drawRect(0, 0, contentSize.lg.x, contentSize.lg.y);
-        const shadowlg = CanvasService.createShadow(shadowGraphicslg);
+        const shadowlg = CanvasService.createShadow(shadowGraphicslg, this.props.renderer);
         shadowlg.position.set(20, 20);
 
 
         // Content Text
-        const textlg = new PIXI.Text('This is the large text');
+        const textlgName = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textlgName.position.set(10, 5);
+        const textlgSub = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textlgSub.position.set(10, 55);
+        const textlgCode = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textlgCode.position.set(10, 105);
+        const textlgComp = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textlgComp.position.set(10, 155);
+        const textlgLink = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textlgLink.position.set(10, 205);
+        textlgLink.buttonMode = textlgLink.interactive = true;
+        textlgLink.on('click', this.linkClick.bind(this));
         this.media.lg.addChild(shadowlg);
-        this.media.lg.addChild(textlg);
+        this.media.lg.addChild(textlgName, textlgSub, textlgCode, textlgComp, textlgLink);
         this.media.lg.addChild(spritelg);
 
         /* ** Content md ** */
@@ -230,24 +239,22 @@ export class Design extends Page<IdesignElements> {
         this.media.md.width = contentSize.md.x;
         this.media.md.height = contentSize.md.y;
         // contentmd.position.x = 800;
-        const textmdh = new PIXI.Text('');
-        const testStyle = new PIXI.TextStyle({
-            align: 'right',
-            dropShadow: true,
-            dropShadowDistance: 20,
-            dropShadowAngle: 1,
-            dropShadowBlur: 30,
-            dropShadowAlpha: 0.1
-        });
-        textmdh.style = testStyle;
-        textmdh.position.x = 200;
-        const textmdc = new PIXI.Text('This is the medium text');
-        textmdc.style = testStyle;
-        textmdc.position.set(0, 205);
-
+        const textmdName = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textmdName.position.x = this.boxHeight;
+        const textmdSub = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textmdSub.position.y = this.boxHeight + 5;
+        const textmdCode = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textmdCode.position.y = this.boxHeight + 55;
+        const textmdComp = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textmdComp.position.y = this.boxHeight + 105;
+        const textmdLink = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textmdLink.position.x = -this.boxHeight;
+        textmdLink.position.y = 2 * this.boxHeight + 5;
+        textmdLink.buttonMode = textmdLink.interactive = true;
+        textmdLink.on('click', this.linkClick.bind(this));
         this.media.md.addChild(fake1);
-        this.media.md.addChild(textmdh);
-        this.media.md.addChild(textmdc);
+        this.media.md.addChild(textmdName, textmdSub, textmdCode, textmdComp);
+        this.media.md.addChild(textmdLink);
         // Content Shadow
 
         /* ** Content sm ** */
@@ -256,12 +263,23 @@ export class Design extends Page<IdesignElements> {
         contentsm.width = contentSize.sm.x;
         contentsm.height = contentSize.sm.y;
         // contentmd.position.x = 800;
-        const textsm = new PIXI.Text('This is the small text');
-        textsm.style = testStyle;
+        const textsmName = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textsmName.position.x = this.boxHeight;
+        const textsmSub = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textsmSub.position.y = this.boxHeight + 5;
+        const textsmCode = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textsmCode.position.y = this.boxHeight + 55;
+        const textsmComp = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textsmComp.position.y = this.boxHeight + 105;
+        const textsmLink = new PIXI.Text('', CanvasService.styles[Styles.design]);
+        textsmLink.position.y = this.boxHeight + 155;
+        textsmLink.buttonMode = textsmLink.interactive = true;
+        textsmLink.on('click', this.linkClick.bind(this));
         this.media.sm.addChild(fake2);
-        this.media.sm.addChild(textsm);
+        this.media.sm.addChild(textsmName, textsmSub, textsmCode, textsmComp);
+        this.media.sm.addChild(textsmLink);
         // Content Shadow
-        // this.addTicker();
+        this.addTicker();
         // const rows = (this._fg.children[0] as PIXI.Container).children;
         // const content = (this._fg.children[1] as PIXI.Container);
         
@@ -275,12 +293,13 @@ export class Design extends Page<IdesignElements> {
             TweenLite.to(box.children[5], 0.2, { height: 66, ease: Power1.easeIn });
             TweenLite.to(box.children[5].position, 0.2, { y: 134, ease: Power1.easeIn });
             TweenLite.to(box.children[6], 0.2, { alpha: 1, ease: Power1.easeIn, delay: 0.2 });
+            // TweenLite.to(this.backgrounds[this.clickIndex + 1], 0.2, { alpha: 0.7, rotation: 0.1, ease: Power1.easeIn, delay: 0.2 });
         }
         // this.hoverSquare = sprite;
         // sprite.skew.set(sprite.position.x - this.mousePosition.x, sprite.position.y - this.mousePosition.y);
     }
     unhover(box: PIXI.Container) {
-        console.log(box);
+        // console.log(box);
         this.hoverSquare = null;
         // TweenLite.to(box.children[4], 0.2, { alpha: 0, ease: Power1.easeOut });
         if (box !== this.boxArray[this.clickIndex]) {
@@ -295,26 +314,70 @@ export class Design extends Page<IdesignElements> {
     click(box: PIXI.Container) {
         if (this.clickIndex !== -1)
             this.unclick();
+            // console.log(this._container);
+            // this._background = this.backgrounds[DContents.SS];
         this.clickIndex = this.boxArray.indexOf(box);
-        // this.contentText = this.textBlocks[this.clickIndex];
         TweenLite.to(box.children[4], 0.2, { alpha: 1, ease: Power1.easeIn });
         TweenLite.to(box.children[5], 0.2, { height: 66, ease: Power1.easeIn });
         TweenLite.to(box.children[5].position, 0.2, { y: 134, ease: Power1.easeIn });
+        console.log(this.clickIndex);
+        const bg = (this._container.children[0] as PIXI.Container).children[this.clickIndex + 1];
+        TweenLite.to(bg, 0.2, { alpha: 1, ease: Power1.easeIn });
+        // ((this._content.children[0] as PIXI.Container).children as PIXI.Text[]).forEach(t => t.style.fill = 'white');
+        const contentText = (this._content.children[0] as PIXI.Container).children as PIXI.Text[];
+        if (this.clickIndex != 4)
+            if (this.clickIndex == 2 || this.clickIndex == 3)
+                contentText[1].style.fill = '#D3D3D3';
+            else
+                contentText[1].style.fill = '#ffffff';
+        else
+            contentText[1].style.fill = '#000000';
+        this.recolor(0x0000ff);
+        // contentText[2].text = '';
+        // contentText[3].text = '';
+        // contentText[4].text = '';
+        // contentText[5].text = '';
     }
 
     unclick() {
         const contentText = (this._content.children[0] as PIXI.Container).children as PIXI.Text[];
-        contentText[1].text = contentText[2].text = '';
+        contentText[1].text = '';
+        contentText[2].text = '';
+        contentText[3].text = '';
+        contentText[4].text = '';
+        contentText[5].text = '';
+        this.recolor();
         TweenLite.to(this.boxArray[this.clickIndex].children[6], 0.2, { alpha: 0, ease: Power1.easeIn });
         TweenLite.to(this.boxArray[this.clickIndex].children[4], 0.2, { alpha: 0, ease: Power1.easeOut });
         TweenLite.to(this.boxArray[this.clickIndex].children[5], 0.2, { height: 0, ease: Power1.easeOut });
         TweenLite.to(this.boxArray[this.clickIndex].children[5].position, 0.2, { y: 200, ease: Power1.easeOut });
+        const bg = (this._container.children[0] as PIXI.Container).children[this.clickIndex + 1];
+        TweenLite.to(bg, 0.2, { alpha: 0, ease: Power1.easeIn });
+    }
+
+    linkClick() {
+        window.open(designContents[this.clickIndex].link);
+    }
+
+    recolor(color: number = 0xFF4E2A) {
+        this.filter.newColor = color;
     }
 
 
     resize = () => {
-        console.log(this.props);
         this._background.position.set(this.props.positions.innerWidth * 1.5, this.props.positions.halfHeight);
+        this.backgrounds.forEach(b => {
+            const pageRatio = this.props.positions.innerHeight / this.props.positions.innerWidth;
+            const boxRatio = b.height / b.width;
+            if (boxRatio < 1 && pageRatio < 1) {
+                console.log("br1");
+                b.height = this.props.positions.innerHeight;
+            }            
+            else
+                b.width = this.props.positions.innerWidth;
+            b.anchor.set(0.5);
+            b.position.set(this.props.positions.halfWidth, this.props.positions.halfHeight);
+        });
         this.boxCont.position.set(135, this.props.positions.halfHeight - this.boxCont.height / 2);
         this._content.removeChildren();
         if (this.props.positions.innerWidth > 1600) {
@@ -337,20 +400,31 @@ export class Design extends Page<IdesignElements> {
     }
 
     addTicker() {
-        this.props.app.ticker.add(delta => {
+        this.props.ticker.add(delta => {
             if (this.clickIndex !== -1) {
                 const content = (this._content.children[0] as PIXI.Container).children as PIXI.Text[];
-                content[1].text = this.textBlocks[this.clickIndex].h;
-                content[2].text = this.textBlocks[this.clickIndex].c;
+                content[1].text = designContents[this.clickIndex].name;
+                content[2].text = designContents[this.clickIndex].sub;
+                content[3].text = 'Code: ' + designContents[this.clickIndex].code;
+                content[4].text = 'Completion: ' + designContents[this.clickIndex].completion;
+                content[5].text = 'Link: ' + designContents[this.clickIndex].linkName;
+                // content[2].text = designContents[this.clickIndex].sub;
             }
-            const mousePosition = this.props.app.renderer.plugins.interaction.mouse.global;
+            const mousePosition = this.props.renderer.plugins.interaction.mouse.global;
             this.mousePosition = mousePosition;
         });
     }
 
     open = () => {
+        this.backgrounds.forEach(bg => {
+            bg.alpha = 0;
+            (this._container.children[0] as PIXI.Container).addChild(bg);
+        });
         this._fg.addChildAt(this.boxCont, 0);
         this._content = this._fg.children[1] as PIXI.Container;
+        this._fg.filters = [this.filter];
+        this.resize();
+        // matrix[1] = 117117;
         const rows = (this._fg.children[0] as PIXI.Container).children;
         
         this._animations = [];

@@ -59,6 +59,7 @@
 .text_bottom {
     position: absolute;
     top: calc(100vh - 150px);
+    // height: 100%;
 }
 #text_scroll {
     width: 100%;
@@ -77,8 +78,10 @@
 }
 #text_photo {
     left: 50px;
+    border: 100px;
 }
 #text_design {
     right: 50px;
+    border: 100px;
 }
 

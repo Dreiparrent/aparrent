@@ -6,6 +6,8 @@ export interface IdContent {
     completion: string;
     linkName: string;
     link: string;
+    img: string;
+    bg: string;
 }
 const dContent: { [name: string]: IdContent } = {
     Blank: {
@@ -15,61 +17,75 @@ const dContent: { [name: string]: IdContent } = {
         code: '',
         completion: '',
         linkName: '',
-        link: '/'
+        link: '/',
+        img: '',
+        bg: ''
     },
     OpenGarage: {
         name: 'Open Garage',
-        shortName: 'OG',
-        sub: 'any',
+        shortName: 'Open Garage',
+        sub: '(details coming soon)',
         code: 'Angular',
         completion: 'nada',
-        linkName: '',
-        link: '/'
+        linkName: 'opengarage.aparrent.com',
+        link: '/opengarage',
+        img: '/assets/img/og-logo.png',
+        bg: '/assets/sites/og.png'
     },
     WMI: {
         name: 'Working Men\'s Institute',
         shortName: 'WMI',
-        sub: 'any',
+        sub: 'The Working Men\'s Institute library and museum is Indiana\'s oldest public library. It functions as a invaluable service to citizens of New Harmony',
         code: 'HTML/CSS/JS',
         completion: 'nada',
-        linkName: '',
-        link: '/'
+        linkName: 'wmi.aparrent.com',
+        link: '/wmi',
+        img: '/assets/img/wmi-logo.png',
+        bg: '/assets/sites/wmi.png'
     },
     DD: {
         name: 'Dance Database',
-        shortName: 'DD',
-        sub: 'any',
+        shortName: 'Dandce Database',
+        sub: '(details coming soon)',
         code: 'React',
         completion: 'nada',
         linkName: '',
-        link: '/'
+        link: '/',
+        img: '/assets/img/og-logo.png',
+        bg: '/assets/sites/dd.png'
     },
     Sourcerer: {
         name: 'Sourcerer',
         shortName: 'Sourcerer',
-        sub: 'any',
+        sub: '(details coming soon)',
         code: 'HTML/JS/CSS',
         completion: 'nada',
         linkName: '',
-        link: '/'
+        link: '/',
+        img: '/assets/img/sour-logo.png',
+        bg: '/assets/sites/sourcerer.png'
     },
     SS: {
         name: 'Savvy Savings',
         shortName: 'Savvy Savings',
-        sub: 'any',
+        sub: '(details coming soon)',
         code: 'Angular',
         completion: 'nada',
-        linkName: '',
-        link: '/'
+        linkName: 'savvysavings.aparrent.com',
+        link: '/savvysavings',
+        img: '/assets/img/ss-logo.png',
+        bg: '/assets/sites/ss.png'
     },
     Kahani: {
         name: 'Kahani',
         shortName: 'Kahani',
-        sub: 'any',
+        sub: '(details coming soon)',
         code: 'Angular',
         completion: 'nada',
         linkName: 'kahani.tech',
-        link: 'https://kahani.tech'
+        link: '/kahani',
+        img: '/assets/img/og-logo.png',
+        bg: '/assets/sites/kahani.png'
     }
 };
 export const designContents = [

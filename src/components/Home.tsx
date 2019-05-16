@@ -20,11 +20,12 @@ export class Home extends Component<IProps, IState> {
                     <div className="curvedarrow"></div>
                 </div>
                 <h1>Andrei Parrent</h1>
+                {/* TODO: add quick links arrow so pple know what the menu is */}
                 <h4 className="text_bottom" id="text_scroll">Scroll for..</h4>
-                <div className="text_bottom curvedarrow" id="text_scroll_arrow1" onClick={this.callScroll.bind(this, -1)}></div>
-                <div className="text_bottom curvedarrow" id="text_scroll_arrow2" onClick={this.callScroll.bind(this, 1)}></div>
-                <h4 className="text_bottom" id="text_photo" onClick={this.callScroll.bind(this, -1)}>Photography</h4>
-                <h4 className="text_bottom" id="text_design" onClick={this.callScroll.bind(this, 1)}>Design</h4>
+                <div className="text_bottom curvedarrow" id="text_scroll_arrow1" onClick={this.callScroll.bind(this, Pages.photography)}></div>
+                <div className="text_bottom curvedarrow" id="text_scroll_arrow2" onClick={this.callScroll.bind(this, Pages.design)}></div>
+                <h3 className="text_bottom" id="text_photo" onClick={this.callScroll.bind(this, Pages.photography)}>Photography</h3>
+                <h3 className="text_bottom" id="text_design" onClick={this.callScroll.bind(this, Pages.design)}>Design</h3>
             </div>
         );
     }

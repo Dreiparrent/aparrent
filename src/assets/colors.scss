@@ -1,0 +1,338 @@
+$accentcolor: #00FFFF;
+$themecolors: (
+    accent: (
+        50 : #ffffff,
+        100 : #bdffff,
+        200 : #85ffff,
+        300 : #3dffff,
+        400 : #1fffff,
+        500 : #00ffff,
+        600 : #00e0e0,
+        700 : #00c2c2,
+        800 : #00a3a3,
+        900 : #008585,
+        A100 : #ffffff,
+        A200 : #99ffff,
+        A400 : #33ffff,
+        A700 : #1affff,
+        contrast: (
+            50 : #2A150D,
+            100 : #3C2109,
+            200 : #551700,
+            300 : #552A1B,
+            400 : #4A321D,
+            500 : #AA2E00,
+            600 : #1C2833,
+            700 : #050709,
+            800 : #ffffff,
+            900 : #ffffff,
+            A100 : #4F5A65,
+            A200 : #4B6A88,
+            A400 : #4B6A88,
+            A700 : #1C2833,
+        )
+    ),
+    primarydark: (
+        50 : #e8edf3,
+        100 : #c5d2e0,
+        200 : #9eb4cc,
+        300 : #7796b8,
+        400 : #5a80a8,
+        500 : #3d6999,
+        600 : #376191,
+        700 : #2f5686,
+        800 : #274c7c,
+        900 : #1a3b6b,
+        A100 : #a6c7ff,
+        A200 : #73a8ff,
+        A400 : #4088ff,
+        A700 : #2678ff,
+        contrast: (
+            50 : #000000,
+            100 : #000000,
+            200 : #000000,
+            300 : #000000,
+            400 : #ffffff,
+            500 : #ffffff,
+            600 : #ffffff,
+            700 : #ffffff,
+            800 : #ffffff,
+            900 : #ffffff,
+            A100 : #000000,
+            A200 : #000000,
+            A400 : #000000,
+            A700 : #ffffff,
+        )
+    ),
+    primary: (
+        50 : #e3edf9,
+        100 : #b9d3f0,
+        200 : #8ab5e6,
+        300 : #5b97db,
+        400 : #3781d4,
+        500 : #146bcc,
+        600 : #1263c7,
+        700 : #0e58c0,
+        800 : #0b4eb9,
+        900 : #063cad,
+        A100 : #d8e2ff,
+        A200 : #a5bdff,
+        A400 : #7297ff,
+        A700 : #5985ff,
+        contrast: (
+            50 : #000000,
+            100 : #050709,
+            200 : #ECECEC,
+            300 : #E8E8E8,
+            400 : #DADFE1,
+            500 : #D2D7D3,
+            600 : #D5D5D5,
+            700 : #D4D4D4,
+            800 : #D3D3D3,
+            900 : #F2F1EF,
+            A100 : #000000,
+            A200 : #000000,
+            A400 : #000000,
+            A700 : #B2CCE5,
+        )
+    ),
+    secondary: (
+        50 : #ffede8,
+        100 : #ffd3c6,
+        200 : #ffb5a0,
+        300 : #ff9779,
+        400 : #ff815d,
+        500 : #ff6b40,
+        600 : #ff633a,
+        700 : #ff5832,
+        800 : #ff4e2a,
+        900 : #ff3c1c,
+        A100 : #ffffff,
+        A200 : #ffffff,
+        A400 : #ffd3cd,
+        A700 : #ffbcb3,
+        contrast: (
+            50 : #000000,
+            100 : #000000,
+            200 : #000000,
+            300 : #050709,
+            400 : #1C2833,
+            500 : #292929,
+            600 : #2A2A2A,
+            700 : #2B2B2B,
+            800 : #2E343B,
+            900 : #3E3E3E,
+            A100 : #000000,
+            A200 : #000000,
+            A400 : #000000,
+            A700 : #000000,
+        )
+    ),
+    secondarydark: (
+        50 : #f9e5e3,
+        100 : #f0bdb9,
+        200 : #e6918a,
+        300 : #db655b,
+        400 : #d44437,
+        500 : #cc2314,
+        600 : #c71f12,
+        700 : #c01a0e,
+        800 : #b9150b,
+        900 : #ad0c06,
+        A100 : #ffd9d8,
+        A200 : #ffa7a5,
+        A400 : #ff7472,
+        A700 : #ff5b59,
+        contrast: (
+            50 : #000000,
+            100 : #000000,
+            200 : #050709,
+            300 : #050709,
+            400 : #D5D5D5,
+            500 : #E8E8E8,
+            600 : #ECECEC,
+            700 : #EEEEEE,
+            800 : #F2F1EF,
+            900 : #FEFEFE,
+            A100 : #000000,
+            A200 : #B2CCE5,
+            A400 : #ECF0F1,
+            A700 : #DADFE1,
+        )
+    )
+);
+@function themeColor($map, $variation...) {
+    $warn: false !default;
+    @if map-has-key($map: $themecolors, $key: $map) {
+        $map: map-get($map: $themecolors, $key: $map);
+    } @else {
+        $warn: $map;
+        $map: map-get($map: $themecolors, $key: accent);
+    }
+    @if length($variation) > 0 {
+        @if $warn {
+            @error "Invalid $map `#{$warn}`, with set $variation `#{$variation}`";
+        }
+        @each $var in $variation {
+            @if not map-has-key($map, $var) {
+                @error "Invalid $variation: `#{$var}` in map `#{map-keys($map: $map)}`";
+            } @else {
+               $map: map-get($map: $map, $key: $var);
+            }
+        }
+        @return $map;
+    }
+    @return map-get($map: $map, $key: 500);
+}
+@function getColor($hex) {
+    $theme: map-keys($map: $themecolors);
+    @each $colorname in $theme {
+        $colormap: map-get($map: $themecolors, $key: $colorname);
+        $vary: map-keys($map: $colormap);
+        @each $var in $vary {
+            @if map-get($map: $colormap, $key: $var) == $hex {
+                @debug "color is `#{$var}` in `#{$colorname}`";
+            }
+        }
+    }
+    @return $hex;
+}
+@mixin background($map: null /*primary primarydark*/, $variation...) {
+    background-color: themeColor($map, $variation...);
+}
+@mixin border-top($map: null /* primary */, $variation...) {
+    border-top-color: themeColor($map, $variation...) !important;
+}
+/*
+$primarydark: (
+    50 : #e8edf3,
+    100 : #c5d2e0,
+    200 : #9eb4cc,
+    300 : #7796b8,
+    400 : #5a80a8,
+    500 : #3d6999,
+    600 : #376191,
+    700 : #2f5686,
+    800 : #274c7c,
+    900 : #1a3b6b,
+    A100 : #a6c7ff,
+    A200 : #73a8ff,
+    A400 : #4088ff,
+    A700 : #2678ff,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #ffffff,
+    )
+);
+
+$primary: (
+    50 : #e3edf9,
+    100 : #b9d3f0,
+    200 : #8ab5e6,
+    300 : #5b97db,
+    400 : #3781d4,
+    500 : #146bcc,
+    600 : #1263c7,
+    700 : #0e58c0,
+    800 : #0b4eb9,
+    900 : #063cad,
+    A100 : #d8e2ff,
+    A200 : #a5bdff,
+    A400 : #7297ff,
+    A700 : #5985ff,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+$secondary: (
+    50 : #ffede8,
+    100 : #ffd3c6,
+    200 : #ffb5a0,
+    300 : #ff9779,
+    400 : #ff815d,
+    500 : #ff6b40,
+    600 : #ff633a,
+    700 : #ff5832,
+    800 : #ff4e2a,
+    900 : #ff3c1c,
+    A100 : #ffffff,
+    A200 : #ffffff,
+    A400 : #ffd3cd,
+    A700 : #ffbcb3,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #000000,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+$secondarydark: (
+    50 : #f9e5e3,
+    100 : #f0bdb9,
+    200 : #e6918a,
+    300 : #db655b,
+    400 : #d44437,
+    500 : #cc2314,
+    600 : #c71f12,
+    700 : #c01a0e,
+    800 : #b9150b,
+    900 : #ad0c06,
+    A100 : #ffd9d8,
+    A200 : #ffa7a5,
+    A400 : #ff7472,
+    A700 : #ff5b59,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+*/

@@ -1,9 +1,11 @@
-import * as GSAP from 'gsap';
+import GSAP from 'gsap';
 import { Observable } from 'rxjs';
 import { IPositions } from '../components/Canvas';
+import * as PIXI from 'pixi.js';
 
 export class Menu {
     public sprite: PIXI.Sprite;
+    public content: PIXI.Container;
     protected readonly position: { x: number, y: number };
     public _anchor = { x: 0.5, y: 0.5 };
 
@@ -24,14 +26,16 @@ export class Menu {
 
     protected _animations: GSAP.TweenLite[];
 
-    constructor(protected positions: IPositions, protected container: PIXI.Container) {
+    constructor(protected positions: IPositions, protected container: PIXI.Container, protected renderer: PIXI.Renderer) {
         this.position = { x: 0, y: 0 };
+        this.content = new PIXI.Container;
     }
 
     _init() {
         this.sprite.buttonMode = this.sprite.interactive = true;
         this.sprite.anchor.set(this._anchor.x, this._anchor.y);
         this.container.addChild(this.sprite);
+        this.container.addChild(this.content);
         this.init()
         this._resize();
     }
@@ -48,7 +52,7 @@ export interface IMenuClass {
     position: { x: number, y: number };
     currentIndex: number;
     isOpen: boolean;
-    open: () => void;
+    open: (index?: number) => void;
     close: () => void;
     _resize: (positions?: IPositions) => void;
 }

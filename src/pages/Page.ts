@@ -1,5 +1,6 @@
 import { IPositions, IText } from "../components/Canvas";
 import GSAP, { TweenLite } from 'gsap';
+import * as PIXI from 'pixi.js';
 export class Page<T extends IElements, S = {}> implements IPage {
     private _timer!: any;
     protected open!: () => void;
@@ -16,7 +17,7 @@ export class Page<T extends IElements, S = {}> implements IPage {
     public _background: PIXI.Sprite;
 
     constructor(protected props: IProps<T>) {
-        this.props.app.stage.addChild(this._container);
+        this.props.stage.addChild(this._container);
     }
 
     public _resize(positions?: IPositions) {
@@ -44,7 +45,6 @@ export class Page<T extends IElements, S = {}> implements IPage {
                 this._isOpen = true;
             }, 500);
         }
-        console.log(this._bg);
     }
 
     public _init(pageInit = true) {
@@ -74,7 +74,9 @@ export class Page<T extends IElements, S = {}> implements IPage {
 export interface IProps<T extends IElements> {
     // elements: T;
     positions: IPositions;
-    app: PIXI.Application;
+    renderer: PIXI.Renderer;
+    stage: PIXI.Container;
+    ticker: PIXI.Ticker;
     relayMenus: (remove?: boolean) => void;
     fullscreen: () => void;
 }

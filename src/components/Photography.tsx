@@ -9,24 +9,24 @@ export class Photography extends Component<IProps, IState> {
         return (
             <div id="photography_outer">
                 <div id="photography_inner">
-                    <div className="box_photo" onClick={this.onClick}>
+                    <div className="box_photo" onClick={this.onClick.bind(this,)}>
                         <div className="section_photo_head"></div>
                         <div className="section_photo_body">
-                            <h3>Albums</h3>
+                            <h3>Portfolio</h3>
                         </div>
                         <div className="section_photo_foot"></div>
                     </div>
                     <div className="box_photo" onClick={this.onClick}>
                         <div className="section_photo_head"></div>
                         <div className="section_photo_body">
-                            <h3>Client Portal</h3>                            
+                            <h3>Albums</h3>
                         </div>
                         <div className="section_photo_foot"></div>                        
                     </div>
                     <div className="box_photo" onClick={this.onClick}>
                         <div className="section_photo_head"></div>
                         <div className="section_photo_body">
-                            <h3>Portfolio</h3>
+                            <h3>Client Portal</h3>
                         </div>
                         <div className="section_photo_foot"></div>
                     </div>

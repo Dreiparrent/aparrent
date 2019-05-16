@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as PIXI from 'pixi.js';
+import { ColorReplaceFilter } from '@pixi/filter-color-replace';
 import { RouteComponentProps } from 'react-router';
 import { Pages, IProps } from '../App';
 import { CanvasService } from '../services/canvas.service';
@@ -57,7 +58,12 @@ export class Canvas extends Component<IProps, IState> {
             dropShadowColor: 0xFFFFFF,
             dropShadowDistance: 0,
             dropShadowBlur: 19
-        }
+        },
+        {
+            fontSize: 32,
+            wordWrap: true,
+            wordWrapWidth: 400
+        },
     ];
     private hider: any;
     private scrollIndex: number;
@@ -66,14 +72,26 @@ export class Canvas extends Component<IProps, IState> {
     private dIniit = false;
     constructor(props: IProps) {
         super(props);
-        const texture = PIXI.Texture.fromImage('assets/grid.png');
-        const app = new PIXI.Application({
-            autoResize: true,
-            resolution: devicePixelRatio,
+        const texture = PIXI.Texture.from('assets/grid.png');
+        // const app = new PIXI.Application({
+        //     // autoResize: true,
+        //     resolution: devicePixelRatio,
+        //     antialias: true
+        // });
+        const _w = window.innerWidth;
+        let _h = window.innerHeight;
+        const renderer = new PIXI.Renderer({
+            height: _h,
+            width: _w,
+            resolution: 1,
             antialias: true
         });
+        const stage = new PIXI.Container();
+        const ticker = new PIXI.Ticker();
         this.state = {
-            app: app,
+            renderer: renderer,
+            stage: stage,
+            ticker: ticker,
             positions: {
                 innerWidth: 0,
                 innerHeight: 0,
@@ -82,7 +100,7 @@ export class Canvas extends Component<IProps, IState> {
             },
             menuContainer: new PIXI.Container(),
             hasMenu: false,
-            background: new PIXI.extras.TilingSprite(texture, app.screen.width, app.screen.height),
+            background: new PIXI.TilingSprite(texture, renderer.screen.width, renderer.screen.height),
             menus: [],
             Home: null,
             Design: null,
@@ -90,7 +108,7 @@ export class Canvas extends Component<IProps, IState> {
             fullscreen: false
         }
         this.myRef = React.createRef();
-        this.state.app.stage.addChild(this.state.background);
+        this.state.stage.addChild(this.state.background);
         this.styles.forEach(s => {
             const style = new PIXI.TextStyle(s);
             style.fontFamily = 'Ludicrous';
@@ -107,23 +125,26 @@ export class Canvas extends Component<IProps, IState> {
     componentWillMount() {
         this.onResize();
         window.addEventListener("resize", this.onResize);
-        window.addEventListener('wheel', this.onScroll);
+        window.addEventListener('wheel', this.onScroll, {passive: true});
         document.addEventListener('keydown', this.onKey);
     }
     componentDidMount() {
         if (this.myRef.current)
-            this.myRef.current.appendChild(this.state.app.view);
-        
+            this.myRef.current.appendChild(this.state.renderer.view);
+        this.state.ticker.add(this.animate);
+        this.state.ticker.start();
         this.createMenus();
     }
     public createMenus() {
         this.state.menus.push(
-            new MainMenu(this.state.positions, this.state.menuContainer),
-            new FansMenu(this.state.positions, this.state.menuContainer),
-            new ScrollMenu(this.state.positions, this.state.menuContainer),
-            new UnsureMenu(this.state.positions, this.state.menuContainer),
+            new MainMenu(this.state.positions, this.state.menuContainer, this.state.renderer),
+            new FansMenu(this.state.positions, this.state.menuContainer, this.state.renderer),
+            new ScrollMenu(this.state.positions, this.state.menuContainer, this.state.renderer),
+            new UnsureMenu(this.state.positions, this.state.menuContainer, this.state.renderer),
         );
+        this.state.menus[2].open(this.scrollIndex);
         this.setState({ hasMenu: true });
+        // this.recolor();
     }
 
     Page( page: Pages) {
@@ -136,7 +157,9 @@ export class Canvas extends Component<IProps, IState> {
                             Design: new i.Design({
                                 relayMenus: this.relayMenus,
                                 positions: this.state.positions,
-                                app: this.state.app,
+                                renderer: this.state.renderer,
+                                stage: this.state.stage,
+                                ticker: this.state.ticker,
                                 fullscreen: this.fullscreen
                             })
                         });
@@ -151,7 +174,9 @@ export class Canvas extends Component<IProps, IState> {
                             Photography: new i.Photography({
                                 relayMenus: this.relayMenus,
                                 positions: this.state.positions,
-                                app: this.state.app,
+                                renderer: this.state.renderer,
+                                stage: this.state.stage,
+                                ticker: this.state.ticker,
                                 fullscreen: this.fullscreen
                             })
                         })
@@ -166,7 +191,9 @@ export class Canvas extends Component<IProps, IState> {
                             Home: new i.Home({
                                 relayMenus: this.relayMenus,
                                 positions: this.state.positions,
-                                app: this.state.app,
+                                renderer: this.state.renderer,
+                                stage: this.state.stage,
+                                ticker: this.state.ticker,
                                 fullscreen: this.fullscreen
                             })
                         });
@@ -187,12 +214,21 @@ export class Canvas extends Component<IProps, IState> {
 
     relayMenus(remove = this.state.hasMenu) {
         if (remove) {
-            this.state.app.stage.removeChild(this.state.menuContainer);
+            this.state.stage.removeChild(this.state.menuContainer);
             this.setState({ hasMenu: false });
         } else {
-            this.state.app.stage.addChild(this.state.menuContainer);
+            this.state.stage.addChild(this.state.menuContainer);
             this.setState({ hasMenu: true });
         }
+    }
+
+    animate = () => {
+        this.state.renderer.render(this.state.stage);
+    }
+
+    recolor = () => {
+        this.state.menuContainer.filters = [new ColorReplaceFilter(0x00FFFF, 0x000000, 0.2)];
+        // this.state.menuContainer.filterArea = new PIXI.Rectangle(0, 0, 0, 0);
     }
 
     fullscreen() {
@@ -209,8 +245,8 @@ export class Canvas extends Component<IProps, IState> {
     onScroll(e: { deltaY: number;}) {
         this.scrollIndex += e.deltaY > 0 ? 1 : -1;
         clearTimeout(this.hider);
-        if (this.scrollIndex < 0) {
-            this.scrollIndex = -1;
+        if (this.scrollIndex < Pages.home) {
+            this.scrollIndex = Pages.photography;
             if (this.state.Design)
                 this.state.Design._close();
             if (this.state.Home)
@@ -218,8 +254,8 @@ export class Canvas extends Component<IProps, IState> {
             this.props.route.history.push('/photography');
             if (this.state.Photography)
                 this.state.Photography._open();
-        } else if (this.scrollIndex > 0) {
-            this.scrollIndex = 1;
+        } else if (this.scrollIndex > Pages.home) {
+            this.scrollIndex = Pages.design;
             if (this.state.Photography)
                 this.state.Photography._close();
             if (this.state.Home)
@@ -232,31 +268,32 @@ export class Canvas extends Component<IProps, IState> {
                 this.state.Photography._close();
             if (this.state.Design)
                 this.state.Design._close();
-            this.scrollIndex = 0;
+            this.scrollIndex = Pages.home;
             this.props.route.history.push('/home');
             if (this.state.Home)
                 setTimeout(() => {
                     this.state.Home._open();
                 }, 500);
-           
         }
+        this.state.menus[2].open(this.scrollIndex);
     }
-    onResize(event?: UIEvent) {
-        this.props.checkMobile();
-        const positions = {
-            innerWidth: window.innerWidth,
-            innerHeight: window.innerHeight,
-            halfWidth: window.innerWidth / 2,
-            halfHeight: window.innerHeight / 2
-        };
-        this.setState({
-            positions: positions
-        });
-        this.resizeCanvas(positions);
+    onResize = (event?: UIEvent) => {
+        if (!this.props.isMobile()) {
+            const positions = {
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight,
+                halfWidth: window.innerWidth / 2,
+                halfHeight: window.innerHeight / 2
+            };
+            this.setState({
+                positions: positions
+            });
+            this.resizeCanvas(positions);
+        }
             
     }
     resizeCanvas(positions: IPositions) {
-        this.state.app.renderer.resize(positions.innerWidth, positions.innerHeight);
+        this.state.renderer.resize(positions.innerWidth, positions.innerHeight);
         this.state.background.width = positions.innerWidth;
         this.state.background.height = positions.innerHeight;
         if (this.state.Home)
@@ -292,19 +329,21 @@ export class Canvas extends Component<IProps, IState> {
 export default Canvas
 // export default withRouter(Canvas);
 interface IState {
-    app: PIXI.Application;
+    renderer: PIXI.Renderer;
+    stage: PIXI.Container;
+    ticker: PIXI.Ticker;
     positions: IPositions;
     menuContainer: PIXI.Container;
     hasMenu: boolean;
     menus: IMenuClass[];
-    background: PIXI.extras.TilingSprite;
+    background: PIXI.TilingSprite;
     Home: IPage;
     Photography: IPage;
     Design: IPage;
     fullscreen: boolean;
 }
 export enum Styles {
-    extraLarge, large, medium, small, largeWhite, mediumWhite, smallWhite, largeWhiteBlur
+    extraLarge, large, medium, small, largeWhite, mediumWhite, smallWhite, largeWhiteBlur, design
 }
 export interface IPositions {
     innerWidth: number;

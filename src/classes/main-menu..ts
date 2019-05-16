@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { IPositions, Styles } from '../components/Canvas';
 import { CanvasService } from '../services/canvas.service';
 declare var TweenLite: typeof gsap.TweenLite;
+import * as PIXI from 'pixi.js';
 declare var Power1: typeof gsap.Power1;
 
 export class MainMenu extends Menu implements IMenuClass {
@@ -27,30 +28,34 @@ export class MainMenu extends Menu implements IMenuClass {
     private menuContent: IMenuContent[] = [
         {
             text: 'Design',
-            subText: ['Open Garage', 'Working Men\'s', 'Savvy Savings', 'Sourcerer']
+            subText: ['Kahani', 'Working Men\'s', 'Savvy Savings', 'Open Garage'],
+            links: ['kahani.aparrent.com', 'wmi.aparrent.com', 'savvy-savings.aparrent.com', 'opengarage.aparrent.com']
         },
         {
             text: 'Photography',
-            subText: ['All Photos', 'Client Photos', 'Portfolio']
+            subText: ['All Photos', 'Client Photos', 'Portfolio'],
+            links: ['aparrent.com', 'aparrent.com', 'aparrent.com']
         },
         {
             text: 'Contact',
-            subText: ['Email', 'LinkedIn', 'GitHub']
+            subText: ['Email', 'LinkedIn', 'GitHub'],
+            links: ['mailto:drei@aparrent.com', 'aparrent.com/linked', 'aparrent.com/git']
         }
     ];
 
-    constructor(positions: IPositions, container: PIXI.Container) {
-        super(positions, container);
+    constructor(positions: IPositions, container: PIXI.Container, renderer: PIXI.Renderer) {
+        super(positions, container, renderer);
         const graphics = new PIXI.Graphics;
         graphics.moveTo(0, 0);
         graphics.beginFill(0xFFFFFF);
         graphics.lineTo(400, 200);
         graphics.lineTo(0, 400);
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.renderer.generateTexture(graphics, 1, 1);
         this.sprite = new PIXI.Sprite(texture);
         this.sprite.width = 100;
         this.sprite.height = 100;
-        this.spriteShadow = CanvasService.createShadow(graphics, 50, 50);
+        this.spriteShadow = CanvasService.createShadow(graphics, this.renderer, 50, 50);
         this.spriteShadow.anchor.set(0, 0.5);
         this.spriteShadow.alpha = 0;
         this.sprite.tint = 0x00FFFF;
@@ -66,10 +71,11 @@ export class MainMenu extends Menu implements IMenuClass {
         graphics.lineTo(400, 200);
         graphics.lineTo(0, 400);
         graphics.endFill();
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.renderer.generateTexture(graphics, 1, 1);
         this.mainMenu = new PIXI.Sprite(texture);
         this.mainMenu.anchor.set(1, 0.5);
-        this.mainMenuShadow = CanvasService.createShadow(graphics);
+        this.mainMenuShadow = CanvasService.createShadow(graphics, this.renderer);
         this.mainMenuShadow.anchor.set(1, 0.5);
         this.container.addChild(this.mainMenuShadow);
         this.container.addChild(this.mainMenu);
@@ -81,6 +87,7 @@ export class MainMenu extends Menu implements IMenuClass {
     public open = () => {
         if (this.isOpen)
             return;
+        // this.mainMenuShadow.alpha = this.spriteShadow.alpha = 1;
         this.mainMenu.position.set(this.sprite.position.x, this.sprite.position.y);
         this.spriteShadow.position.set(this.sprite.position.x, this.sprite.position.y);
         this.mainMenuShadow.position.set(this.sprite.position.x, this.sprite.position.y);
@@ -90,12 +97,12 @@ export class MainMenu extends Menu implements IMenuClass {
             this._animations.push(
                 TweenLite.to(this.mainMenu.position, 0.5, { x: 500, y: this.mainMenu.position.y, ease: Power1.easeOut }),
                 TweenLite.to(this.mainMenuShadow.position, 0.5, { x: 520, y: this.mainMenu.position.y + 20, ease: Power1.easeOut }),
-                TweenLite.to(this.mainMenuShadow, 0.5, { alpha: 0.5, ease: Power1.easeOut }),
+                TweenLite.fromTo(this.mainMenuShadow, 0.5, { alpha: 0 }, { alpha: 0.5, ease: Power1.easeOut }),
                 TweenLite.to(this.sprite.position, 0.5, { x: 750, y: this.sprite.position.y, ease: Power1.easeOut }),
                 TweenLite.to(this.sprite.scale, 0.5, { x: -1.25, y: 1.25, ease: Power1.easeOut }),
                 TweenLite.to(this.spriteShadow.position, 0.5, { x: 800, y: this.sprite.position.y + 50, ease: Power1.easeOut }),
                 TweenLite.to(this.spriteShadow.scale, 0.5, { x: -1.30, y: 1.30, ease: Power1.easeOut }),
-                TweenLite.to(this.spriteShadow, 0.5, { alpha: 0.5, ease: Power1.easeOut })
+                TweenLite.fromTo(this.spriteShadow, 0.5, { alpha: 0 }, { alpha: 0.5, ease: Power1.easeOut })
             );
         }
         this._animations.forEach(t => t.play());
@@ -107,6 +114,8 @@ export class MainMenu extends Menu implements IMenuClass {
         this._isOpen = true;
     }
     public close = () => {
+        this.mainMenuShadow.alpha = this.spriteShadow.alpha = 0;
+        // this.container.removeChild(this.mainMenuShadow, this.spriteShadow);
         this.xText.visible = false;
         this.menuContent.forEach(m => {
             m.elem.visible = m.subContainer.visible = false;
@@ -142,10 +151,11 @@ export class MainMenu extends Menu implements IMenuClass {
             const subContainer = new PIXI.Container();
             m.elem.visible = subContainer.visible = false;
             this.container.addChild(subContainer);
-            m.subText.forEach(st => {
+            m.subText.forEach((st, j) => {
                 const subText = new PIXI.Text(st, CanvasService.styles[Styles.medium]);
                 subText.anchor.x = 1.1;
                 subText.buttonMode = subText.interactive = true;
+                subText.on('click', () => this.clickSub(i, j));
                 subContainer.addChild(subText);
             });
             m.subContainer = subContainer;
@@ -190,6 +200,10 @@ export class MainMenu extends Menu implements IMenuClass {
         this._currentIndex = i;
     }
 
+    private clickSub(i: number, j: number) {
+        window.open(this.menuContent[i].links[j]);
+    }
+
     resize = () => {
         
     }
@@ -197,6 +211,7 @@ export class MainMenu extends Menu implements IMenuClass {
 interface IMenuContent {
     text: string;
     subText: string[];
+    links: string[];
     elem?: PIXI.Text;
     subContainer?: PIXI.Container;
 }

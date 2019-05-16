@@ -33,7 +33,7 @@ export class Menus extends Component<IProps, IState> {
         this.raiseWedge = this.raiseWedge.bind(this);
         this.resetWedge = this.resetWedge.bind(this);
     }
-    getSubMenu(props: {active: boolean}) {
+    getSubMenu(props: {active: boolean}) {//
         if (this.state.navSubDesignActive) {
             return (
                 <div>
@@ -83,9 +83,15 @@ export class Menus extends Component<IProps, IState> {
                 <div className="menu" id="menu_scroll">
                     <div id="wedge_clip" ref={this.wedgeClip}>
                         <div id="wedge_rotate" ref={this.wedgeRef}>
-                            <div className="wedge" id="wedgep" onClick={this.wedgeClick}></div>
-                            <div className="wedge" id="wedgeh" onClick={this.wedgeClick}></div>
-                            <div className="wedge" id="wedged" onClick={this.wedgeClick}></div>
+                            <div className="wedge" id="wedgep" onClick={this.wedgeClick}>
+                                <img src="/assets/icons/mi_photo_camera.png" />
+                            </div>
+                            <div className="wedge" id="wedgeh" onClick={this.wedgeClick}>
+                                <img src="/assets/icons/icon-48.png"/>
+                            </div>
+                            <div className="wedge" id="wedged" onClick={this.wedgeClick}>
+                                <img src="/assets/icons/mi_settings_system_daydream.png" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,7 +118,6 @@ export class Menus extends Component<IProps, IState> {
         this.setState({fansActive: !this.state.fansActive})
     }
     private navClick(e?: React.MouseEvent<HTMLDivElement, MouseEvent>, reset = false) {
-        console.log('open');
         if (!e || this.state.navSubDesignActive && e.currentTarget.tagName !== 'DIV') {
             this.subMenu.current.style.left = '-400px';
             this.navMenu.current.style.borderTop = '50px solid transparent';
@@ -138,16 +143,14 @@ export class Menus extends Component<IProps, IState> {
     private designClick() {
         this.setState({ navSubDesignActive: true });
         // this.subDesignAcive = true;
-        console.log('design');
+        // console.log('design');
     }
     private photoClick() {
         this.setState({ navSubDesignActive: false });
         // this.subDesignAcive = false;
-        console.log('photo');
+        // console.log('photo');
     }
-    private wedgeClick() {
-        console.log(this.props.page);
-        
+    private wedgeClick() {        
         if (this.state.wedgeActive) {
             this.wedgeMenu.current.style.top = '100vh';
             this.resetWedge();
@@ -155,13 +158,13 @@ export class Menus extends Component<IProps, IState> {
             this.wedgeMenu.current.style.top = '10vh';
             switch (this.props.page) {
                 case (Pages.photography):
-                    this.wedgeMenu.current.style.borderTopColor = '#3D6999'; // TODO: add proper colors to these
+                    this.wedgeMenu.current.className = 'wedge wp-active';
                     break;
                 case Pages.design:
-                    this.wedgeMenu.current.style.borderTopColor = '#FF6B40';
+                    this.wedgeMenu.current.className = 'wedge wd-active';                    
                     break;
                 default:
-                    this.wedgeMenu.current.style.borderTopColor = '#146BCC';
+                    this.wedgeMenu.current.className = 'wedge wh-active';                    
                     break;
             }
             this.raiseWedge();

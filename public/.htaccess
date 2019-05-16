@@ -1,0 +1,63 @@
+<filesMatch ".(css|jpg|jpeg|png|gif|js|ico)$">
+Header set Cache-Control "max-age=2592000, public"
+</filesMatch>
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/parrentphotography/?$ [NC]
+RewriteRule ^(.*)$ https://parrentphotography.com/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/opengarage/?$ [NC]
+RewriteRule ^(.*)$ https://opengarage.aparrent.com/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/savvy-?savings/?$ [NC]
+RewriteRule ^(.*)$ https://savvy-savings.aparrent.com/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www.)?workingmensinstitute.aparrent.com/?$ [NC]
+RewriteRule ^(.*)$ https://wmi.aparrent.com/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/w(orking)?m(ens)?i(nstitute)?/?$ [NC]
+RewriteRule ^(.*)$ https://wmi.aparrent.com/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/git/?$ [NC]
+RewriteRule ^(.*)$ https://github.com/DreiParrent/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/linked/?$ [NC]
+RewriteRule ^(.*)$ https://www.linkedin.com/in/dreiparrent/ [L,R=301]
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+RewriteEngine On
+# RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^(https?://)?kahani.aparrent.com/?$ [NC]
+RewriteCond %{HTTP_REFERER} !^(https?://)?wmi.aparrent.com/?$ [NC]
+# RewriteCond %{REQUEST_URI} !^/kahani/?$ [NC]
+RewriteCond %{REQUEST_URI} !^(mobile)?/kahani/?$ [NC]
+RewriteCond $1 !\.(gif|jpe?g|png|txt|xml)$ [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html?/$1 [L]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^(mobile)?/resume/?$ [NC]
+RewriteRule ^(.*)$ https://aparrent.com/resume/Andrei\ Parrent\ -\ Resume.pdf [L,R=301]
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^(mobile)?/kahani/?$ [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ https://kahani.aparrent.com [L,R=301]
+
+# add custom 404 page

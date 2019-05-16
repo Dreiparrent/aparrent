@@ -2,6 +2,7 @@ import React, { Component, Suspense } from 'react'
 import { Styles, IText, IPositions } from '../components/Canvas';
 import { CanvasService } from '../services/canvas.service';
 import { Page, IhomeElements, IProps } from './Page';
+import * as PIXI from 'pixi.js';
 import GSAP, { TweenLite } from 'gsap';
 
 export class Home extends Page<IhomeElements, { isInit: boolean }> {
@@ -162,7 +163,7 @@ export class Home extends Page<IhomeElements, { isInit: boolean }> {
             }
         ];
     }
-    private arrowTexture = PIXI.Texture.fromImage('assets/arrowHead.png');
+    private arrowTexture = PIXI.Texture.from('assets/arrowHead.png');
     public arrowContainer = new PIXI.Container;
     public arrowLines = new PIXI.Graphics;
     constructor(props: IProps<IhomeElements>) /* IProps */ {
@@ -226,7 +227,6 @@ export class Home extends Page<IhomeElements, { isInit: boolean }> {
     resize = () => {
         this.positionText();
         this.setArrows();
-        console.log('resize');
     }
 
 }

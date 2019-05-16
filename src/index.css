@@ -1,15 +1,18 @@
-body {
-  margin:0;
-  padding:0;
-  overflow: hidden;
-  background-image: url('/assets/grid.png');
-  background-repeat: repeat;
-  background-size: cover;
-}
-html {
-    margin: 0;
-    padding: 0;
+html, body {
+    position: fixed;
+    margin:0;
+    padding:0;
+    height: 100%; 
+    overflow: hidden; 
+    width: 100%; 
     overflow: hidden;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/assets/grid.png');
+    background-repeat: repeat;
+    background-size: cover;
 }
 p, h1, h2, h3, h4, h5, label {
     font-family: 'Ludicrous';
@@ -28,5 +31,19 @@ h1 {
     font-weight: normal;
     font-style: normal;
 }
+@media only screen and (min-width: 800px) {
+    .fontText {
+        display: none;
+    }
+    @font-face {
+        font-family: 'Ludicrous';
+        src: 'assets/Ludicrous.woff';
+    }
+}
+/* @media only screen and (max-width: 800px) { */
+
+/* } */
+
+
 
 /* TODO: add basic 'preload' stuff here like the outline for mobile or the FAKE outline for desktop to represent faster loading */

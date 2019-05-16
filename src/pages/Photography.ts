@@ -1,5 +1,8 @@
 import { Page, IProps, IhomeElements } from "./Page";
 import GSAP, { TweenLite } from 'gsap';
+import { CanvasService } from "../services/canvas.service";
+import { Styles } from "../components/Canvas";
+import * as PIXI from 'pixi.js';
 
 export class Photography extends Page<any> {
 
@@ -29,7 +32,8 @@ export class Photography extends Page<any> {
         // graphics.beginFill(0x3D6999, 0.7);
         graphics.drawRect(0, 0, this.props.positions.innerWidth, this.props.positions.innerHeight);
         graphics.endFill();
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.props.renderer.generateTexture(graphics, 1, 1);
         this._background = new PIXI.Sprite(texture);
         this._background.anchor.set(1.5, 0.5);
         this._background.rotation = 1;
@@ -37,6 +41,11 @@ export class Photography extends Page<any> {
     }
 
     init = () => {
+        const text = new PIXI.Text('Coming Soon', CanvasService.styles[Styles.largeWhiteBlur]);
+        text.position.set(this.props.positions.halfWidth, this.props.positions.halfHeight);
+        text.anchor.set(0.5);
+        this._content.addChild(text);
+        //
         const graphics = new PIXI.Graphics;
         graphics.lineStyle(5, 0xFFFFFF);
         graphics.moveTo(0, 0);
@@ -44,7 +53,8 @@ export class Photography extends Page<any> {
         graphics.lineTo(400, 700);
         graphics.lineTo(0, 700);
         graphics.lineTo(0, 0);
-        const texture = graphics.generateCanvasTexture();
+        // const texture = graphics.generateCanvasTexture();
+        const texture = this.props.renderer.generateTexture(graphics, 1, 1);
 
         this.boxCont = new PIXI.Container;        
         this.boxCont.skew.x = 50;
@@ -53,7 +63,8 @@ export class Photography extends Page<any> {
         // over1.moveTo(200, 0);
         over.beginFill(0x063CAD);
         over.drawRect(0, 0, 405, 100);
-        const overTexture = over.generateCanvasTexture();
+        // const overTexture = over.generateCanvasTexture();
+        const overTexture = this.props.renderer.generateTexture(over,1,1);
         for (let i = 0; i < 3; i++) {
             const sprite = new PIXI.Sprite(texture);
             sprite.position.x = -210 + i * 410;
@@ -81,23 +92,6 @@ export class Photography extends Page<any> {
             (this.boxCont.children[6] as PIXI.Sprite).buttonMode = true;
         this._isInit = true;
     }
-    /*
-    resize() {
-        this.canvasService.app.stage.removeChild(this.container);
-        this.canvasService.app.stage.removeChild(this.canvasService.menuContainer);
-        // TODO: resize not working
-        this.backgroundImage.width = this.resizeService.positions.innerWidth;
-        this.backgroundImage.height = this.resizeService.positions.innerHeight;
-        // this.backgroundImage.position.set(this.resizeService.positions.innerWidth * 1.5, this.resizeService.positions.halfHeight);
-        this.background.width = this.resizeService.positions.innerWidth;
-        this.background.height = this.resizeService.positions.innerHeight;
-        this.background.position.set(this.resizeService.positions.innerWidth * 1.5, this.resizeService.positions.halfHeight);
-        // this.backgroundImage.position.set(0, 0);
-        // this.background.position.set(this.resizeService.positions.innerWidth * 1.5, this.resizeService.positions.halfHeight);
-        this.canvasService.app.stage.addChild(this.container);
-        this.canvasService.app.stage.addChild(this.canvasService.menuContainer);
-    }
-    */
     hover(box?: PIXI.Container) {
         // this.boxCont.children[3].position.set(-400, 0);
     }
